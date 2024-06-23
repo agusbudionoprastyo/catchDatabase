@@ -45,6 +45,25 @@ async function pollChanges() {
 //     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(amount).replace('Rp', 'Rp');
 // }
 
+// // Fungsi untuk mengirim permintaan HTTP ke endpoint Google Apps Script
+// async function sendRequests(rows) {
+//     for (let row of rows) {
+//         const orderId = row.order_serial_no;
+//         const total = row.total;
+//         const itemName = row.item_names;
+//         const tableName = row.table_name;
+//         const url = 'https://script.google.com/macros/s/AKfycbw64k_yf7G5ulFmGDibuich1VAniOHlrbMaJ2wExOzF9sAfworaBaUnI9_gsySGDtzH/exec'; // Ganti dengan URL endpoint Google Apps Script Anda
+//         const payload = { orderId, total, itemName, tableName };
+//         try {
+//             await axios.post(url, payload);
+//             console.log('Permintaan terkirim:', payload);
+//         } catch (error) {
+//             console.error('Error mengirim permintaan:', error);
+//         }
+//     }
+// }
+
+
 // Fungsi untuk mengirim permintaan HTTP ke endpoint Google Apps Script
 async function sendRequests(rows) {
     for (let row of rows) {
@@ -52,16 +71,22 @@ async function sendRequests(rows) {
         const total = row.total;
         const itemName = row.item_names;
         const tableName = row.table_name;
-        const url = 'https://script.google.com/macros/s/AKfycbw64k_yf7G5ulFmGDibuich1VAniOHlrbMaJ2wExOzF9sAfworaBaUnI9_gsySGDtzH/exec'; // Ganti dengan URL endpoint Google Apps Script Anda
-        const payload = { orderId, total, itemName, tableName };
+        const url = 'https://wagateway.dafamsemarang.my.id/send-group-message'; // URL baru
+        const payload = { message: `Order ID: ${orderId}, Total: ${total}, Items: ${itemName}, Table: ${tableName}`, id_group: 'your_group_id' }; // Sesuaikan id_group
+
         try {
-            await axios.post(url, payload);
+            await axios.post(url, new URLSearchParams(payload), {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
             console.log('Permintaan terkirim:', payload);
         } catch (error) {
             console.error('Error mengirim permintaan:', error);
         }
     }
 }
+
 
 // Set interval untuk memanggil polling perubahan setiap 5 detik
 setInterval(pollChanges, 5000);
